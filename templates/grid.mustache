@@ -73,16 +73,16 @@
         "showcompletion": true
     }
 }}
-<div class="thegrid d-flex flex-wrap grid-justify-{{gridjustification}} mt-2">
+<ul class="thegrid d-flex flex-wrap grid-justify-{{gridjustification}} mt-2 mb-0">
     {{#gridsections}}
     {{#sectionbreak}}
-    </div>
+    </ul>
     {{#sectionbreakheading}}
-    <div id="gridsectionbreak-{{number}}" class="gridsectionbreakheading mb-1 mt-1">{{{sectionbreakheading}}}</div>
+    <div id="gridsectionbreak-{{number}}" class="gridsectionbreakheading mb-1 mt-5">{{{sectionbreakheading}}}</div>
     {{/sectionbreakheading}}
-    <div class="thegrid d-flex flex-wrap grid-justify-{{gridjustification}}">
+    <ul class="thegrid d-flex flex-wrap grid-justify-{{gridjustification}} mb-0">
     {{/sectionbreak}}
-    <div id="section-{{number}}" class="grid-section card{{#iscurrent}} currentgridsection{{/iscurrent}}" title="{{sectionname}}">
+    <li id="section-{{number}}" class="grid-section card{{#iscurrent}} currentgridsection{{/iscurrent}}" title="{{sectionname}}">
         {{^popup}}
         {{^sectionuservisible}}<div class="grid-section-inner d-flex flex-column h-100">{{/sectionuservisible}}
         {{#sectionuservisible}}<a class="grid-section-inner d-flex flex-column h-100" href="{{sectionurl}}">{{/sectionuservisible}}
@@ -144,9 +144,9 @@
         {{#popup}}
         </div>
         {{/popup}}
-    </div>
+    </li>
     {{/gridsections}}
-</div>
+</ul>
 
 {{#popup}}
 <div class="modal fade" id="gridPopup" tabindex="-1" aria-labelledby="gridPopupLabel" aria-hidden="true">
