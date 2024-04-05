@@ -270,7 +270,7 @@ class content extends content_base {
                         $sectionimages[$section->id]->hasbadge = true;
                     }
                     $sectionimages[$section->id]->sectionuservisible = $section->uservisible;
-
+                    $sectionimages[$section->id]->availability = $section->availability;
                     // Section break.
                     if ($sectionformatoptions['sectionbreak'] == 2) { // Yes.
                         $sectionimages[$section->id]->sectionbreak = true;
@@ -440,6 +440,14 @@ class content extends content_base {
                 }
             }
             $section->uservisible = $thissection->uservisible;
+
+            // Add availability info for grid display.
+            $availabilityclass = $format->get_output_classname('content\\section\\availability');
+            $availability = new $availabilityclass($this->format, $thissection);
+            $section->availability = $availability->export_for_template($output);
+            $section->restrictionlock = !empty($thissection->availableinfo);
+            $section->hasavailability = $availability->has_availability($output);
+
             $sections[] = $section;
         }
 
