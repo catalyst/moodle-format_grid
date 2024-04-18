@@ -88,6 +88,11 @@
                     {{/ core_courseformat/local/content/section/badges }}
                 </div>
             {{/notavailable}}</div>
+            {{#availability}}
+                {{$ core_courseformat/local/content/section/availability }}
+                    {{> core_courseformat/local/content/section/availability }}
+                {{/ core_courseformat/local/content/section/availability }}
+            {{/availability}}
             {{#imageuri}}
             <div class="grid-image card-img-bottom text-center">
                 <img src="{{imageuri}}" alt="{{imagealttext}}" loading="lazy">
