@@ -105,11 +105,6 @@
                 {{/sectiontitleingridbox}}
             </div>
             <div class="grid-image-container">
-                {{#availability}}
-                    {{$ core_courseformat/local/content/section/availability }}
-                        {{> core_courseformat/local/content/section/availability }}
-                    {{/ core_courseformat/local/content/section/availability }}
-                {{/availability}}
                 {{#imageuri}}
                 <div class="grid-image{{^imageresizemethodcrop}} grid-scaled{{/imageresizemethodcrop}} text-center">
                     <img{{#imageresizemethodcrop}} class="card-img-bottom{{^sectiontitleingridbox}} card-img-top{{/sectiontitleingridbox}}"{{/imageresizemethodcrop}} src="{{imageuri}}" alt="{{imagealttext}}" loading="lazy">
@@ -149,6 +144,11 @@
         {{#popup}}
         </div>
         {{/popup}}
+        {{#availability}}
+            {{$ core_courseformat/local/content/section/availability }}
+                {{> core_courseformat/local/content/section/availability }}
+            {{/ core_courseformat/local/content/section/availability }}
+        {{/availability}}
     </li>
     {{/gridsections}}
 </ul>
