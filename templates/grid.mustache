@@ -99,6 +99,12 @@
                 {{#sectioncompletionmarkup}}{{{sectioncompletionmarkup}}}{{/sectioncompletionmarkup}}
             </div>
             {{/generatedimageuri}}
+            {{#imageerror}}
+            <div class="grid-image-error card-img-bottom text-center">
+                <p><small>{{imageerror}}</small></p>
+                {{#sectioncompletionmarkup}}{{{sectioncompletionmarkup}}}{{/sectioncompletionmarkup}}
+            </div>
+            {{/imageerror}}
         {{^popup}}
         {{#notavailable}}</div>{{/notavailable}}
         {{^notavailable}}</a>{{/notavailable}}
@@ -129,7 +135,7 @@
                 <div id="gridPopupCarousel" class="carousel slide" data-interval="false">
                     <div class="carousel-inner">
                         {{#popupsections}}
-                        <div id="gridpopupsection-{{num}}" data-section="{{num}}" data-sectiontitle="{{#header}}{{name}}{{/header}}" class="carousel-item gridcarousel-item">
+                        <div id="gridpopupsection-{{num}}" data-section="{{num}}" data-sectiontitle="{{#header}}{{{name}}}{{/header}}" class="carousel-item gridcarousel-item">
                             {{#restrictionlock}}
                             <div class="align-self-center ml-2">
                                 {{#pix}}t/unlock, core{{/pix}}

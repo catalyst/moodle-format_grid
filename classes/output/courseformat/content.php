@@ -38,9 +38,11 @@ use stdClass;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class content extends content_base {
-
+    /** @var array sectioncompletionpercentage */
     private $sectioncompletionpercentage = [];
+    /** @var array sectioncompletionmarkup */
     private $sectioncompletionmarkup = [];
+    /** @var array sectioncompletioncalculated */
     private $sectioncompletioncalculated = [];
 
     /**
@@ -50,6 +52,17 @@ class content extends content_base {
      */
     protected $hasaddsection = false;
 
+    /**
+     * @var int Are there stealth sections with content?
+     */
+    protected $hassteathwithcontent = 0;
+
+    /**
+     * Get the template name.
+     *
+     * @param renderer_base $output typically, the renderer that's calling this method.
+     * @return string Mustache template name.
+     */
     public function get_template_name(\renderer_base $renderer): string {
         return 'format_grid/local/content';
     }
@@ -57,8 +70,8 @@ class content extends content_base {
     /**
      * Export this data so it can be used as the context for a mustache template (core/inplace_editable).
      *
-     * @param renderer_base $output typically, the renderer that's calling this function
-     * @return stdClass data context for a Mustache template
+     * @param renderer_base $output typically, the renderer that's calling this method.
+     * @return stdClass data context for a Mustache template.
      */
     public function export_for_template(\renderer_base $output) {
         global $DB, $PAGE;
@@ -68,7 +81,7 @@ class content extends content_base {
         $data = (object)[
             'title' => $format->page_title(),
             'format' => $format->get_format(),
-            'sectionreturn' => 0,
+            'sectionreturn' => null,
         ];
 
         $singlesection = $this->format->get_section_number();
@@ -78,10 +91,13 @@ class content extends content_base {
         $currentsectionid = 0;
 
         if (!empty($sections)) {
-            // Most formats uses section 0 as a separate section so we remove from the list.
-            $initialsection = array_shift($sections);
-            if (!$singlesection) {
-                $data->initialsection = $initialsection;
+            // Is first entry section 0?
+            if ($sections[0]->num === 0) {
+                // Most formats uses section 0 as a separate section so we remove from the list.
+                $initialsection = array_shift($sections);
+                if (!$singlesection) {
+                    $data->initialsection = $initialsection;
+                }
             }
             if (($editing) || ($singlesection)) { // This triggers the display of the standard list of section(s).
                 $data->sections = $sections;
@@ -115,10 +131,20 @@ class content extends content_base {
                 $fs = get_file_storage();
                 $coursecontext = \context_course::instance($course->id);
                 foreach ($coursesectionimages as $coursesectionimage) {
-                    $replacement = $toolbox->check_displayed_image($coursesectionimage, $course->id, $coursecontext->id,
-                        $coursesectionimage->sectionid, $format, $fs);
-                    if (!empty($replacement)) {
-                        $coursesectionimages[$coursesectionimage->id] = $replacement;
+                    try {
+                        $replacement = $toolbox->check_displayed_image(
+                            $coursesectionimage,
+                            $course->id,
+                            $coursecontext->id,
+                            $coursesectionimage->sectionid,
+                            $format,
+                            $fs
+                        );
+                        if (!empty($replacement)) {
+                            $coursesectionimages[$coursesectionimage->id] = $replacement;
+                        }
+                    } catch (\moodle_exception $me) {
+                        $coursesectionimages[$coursesectionimage->id]->imageerror = $me->getMessage();
                     }
                 }
             }
@@ -160,12 +186,22 @@ class content extends content_base {
             }
             foreach ($sectionsforgrid as $section) {
                 // Do we have an image?
-                if ((array_key_exists($section->id, $sectionimages)) && ($sectionimages[$section->id]->displayedimagestate >= 1)) {
-                    $sectionimages[$section->id]->imageuri = $toolbox->get_displayed_image_uri(
-                        $sectionimages[$section->id], $coursecontext->id, $section->id, $displayediswebp);
+                if (array_key_exists($section->id, $sectionimages)) {
+                    if ($sectionimages[$section->id]->displayedimagestate >= 1) {
+                        $sectionimages[$section->id]->imageuri = $toolbox->get_displayed_image_uri(
+                            $sectionimages[$section->id],
+                            $coursecontext->id,
+                            $section->id,
+                            $displayediswebp
+                        );
+                    } else if (empty($sectionimages[$section->id]->imageerror)) {
+                        $sectionimages[$section->id]->imageerror =
+                            get_string('cannotconvertuploadedimagetodisplayedimage', 'format_grid',
+                                json_encode($sectionimages[$section->id]));
+                    }
                 } else {
                     // No.
-                    $sectionimages[$section->id] = new stdClass;
+                    $sectionimages[$section->id] = new stdClass();
                     $sectionimages[$section->id]->generatedimageuri = $output->get_generated_image_for_id($section->id);
                 }
                 // Number.
@@ -206,7 +242,7 @@ class content extends content_base {
                     // Section break.
                     if ($sectionformatoptions['sectionbreak'] == 2) { // Yes.
                         $sectionimages[$section->id]->sectionbreak = true;
-                        if (!empty ($sectionformatoptions['sectionbreakheading'])) {
+                        if (!empty($sectionformatoptions['sectionbreakheading'])) {
                             // Note:  As a PARAM_TEXT, then does need to be passed through 'format_string' for multi-lang or not?
                             $sectionimages[$section->id]->sectionbreakheading = format_text(
                                 $sectionformatoptions['sectionbreakheading'],
@@ -249,6 +285,13 @@ class content extends content_base {
             }
         }
 
+        if ($this->hassteathwithcontent) {
+            $context = \context_course::instance($course->id);
+            if (has_capability('moodle/course:update', $context)) {
+                $data->stealthwarning = get_string('stealthwarning', 'format_grid', $this->hassteathwithcontent);
+            }
+        }
+
         if ($this->hasaddsection) {
             $addsection = new $this->addsectionclass($format);
             $data->numsections = $addsection->export_for_template($output);
@@ -282,13 +325,22 @@ class content extends content_base {
         foreach ($sectioninfos as $thissection) {
             // The course/view.php check the section existence but the output can be called from other parts so we need to check it.
             if (!$thissection) {
-                throw new \moodle_exception('unknowncoursesection', 'error', '',
-                    get_string('unknowncoursesection', 'error',
-                        course_get_url($course).' - '.format_string($course->fullname))
-                    );
+                throw new \moodle_exception(
+                    'unknowncoursesection',
+                    'error',
+                    '',
+                    get_string(
+                        'unknowncoursesection',
+                        'error',
+                        course_get_url($course) . ' - ' . format_string($course->fullname)
+                    )
+                );
             }
 
             if ($thissection->section > $numsections) {
+                if (!empty($modinfo->sections[$thissection->section])) {
+                    $this->hassteathwithcontent++;
+                }
                 continue;
             }
 
@@ -296,7 +348,7 @@ class content extends content_base {
                 continue;
             }
 
-            $section = new stdClass;
+            $section = new stdClass();
             $section->id = $thissection->id;
             $section->num = $thissection->section;
             $section->name = $output->section_title_without_link($thissection, $course);
@@ -352,8 +404,10 @@ class content extends content_base {
                         if ($completioninfo->is_enabled($thismod) != COMPLETION_TRACKING_NONE) {
                             $total++;
                             $completiondata = $completioninfo->get_data($thismod, true);
-                            if ($completiondata->completionstate == COMPLETION_COMPLETE ||
-                                $completiondata->completionstate == COMPLETION_COMPLETE_PASS) {
+                            if (
+                                $completiondata->completionstate == COMPLETION_COMPLETE ||
+                                $completiondata->completionstate == COMPLETION_COMPLETE_PASS
+                            ) {
                                 $complete++;
                             }
                         }
