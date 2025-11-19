@@ -242,5 +242,13 @@ if ($ADMIN->fulltree) {
         new lang_string('courseindex_help', 'format_grid'),
         $default
     ));
+
+    $default = 1;
+    $page->add(new admin_setting_configcheckbox(
+        'format_grid/section0courselink',
+        get_string('section0courselink', 'format_grid'),
+        get_string('section0courselink_desc', 'format_grid'),
+        $default
+    ));
 }
 $ADMIN->add('format_grid', $page);

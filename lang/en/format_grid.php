@@ -177,6 +177,8 @@ $string['versionalpha'] = 'Alpha version - Almost certainly contains bugs.  This
 $string['versionbeta'] = 'Beta version - Likely to contain bugs.  Ready for testing by administrators on a test server only.';
 $string['versionrc'] = 'Release candidate version - May contain bugs.  Check completely on a test server before considering on a production server.';
 $string['versionstable'] = 'Stable version - Could contain bugs.  Check on a test server before installing on your production server.';
+$string['section0courselink'] = 'Section 0 links to course home';
+$string['section0courselink_desc'] = 'When enabled, the General section (Section 0) in the course index will link to the main course page instead of anchoring to the section.';
 
 // Setting class admin_setting_configinteger.
 $string['asconfigintlower'] = '{$a->value} is less than the lower range limit of {$a->lower}';
