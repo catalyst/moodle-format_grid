@@ -469,6 +469,12 @@ class format_grid extends core_courseformat\base {
         $context = context_course::instance($course->id);
         if (!($PAGE->user_is_editing() && has_capability('moodle/course:update', $context))) {
             if (!empty($options['navigation']) && $sectionno !== null) {
+                // Check if Section 0 should link to course home.
+                $showcourselink = get_config('format_grid', 'section0courselink');
+                if ($sectionno == 0 && $showcourselink) {
+                    return new moodle_url('/course/view.php', ['id' => $course->id]);
+                }
+
                 // Display section on separate page when not editing.
                 $sectioninfo = $this->get_section($sectionno);
                 return new moodle_url('/course/section.php', ['id' => $sectioninfo->id]);
@@ -1112,25 +1118,6 @@ class format_grid extends core_courseformat\base {
      */
     public function get_required_jsfiles(): array {
         return [];
-    }
-
-    /**
-    * Loads format-specific JavaScript for the course page.
-    *
-    * @param moodle_page $page The page object
-    */
-    public function page_set_course(moodle_page $page) {
-        global $PAGE;
-
-        $showlink = get_config('format_grid', 'showcoursehomelink');
-
-        if ($showlink) {
-            $PAGE->requires->js_call_amd(
-                'format_grid/local/content/courseindex',
-                'init',
-                [$this->courseid, true]
-            );
-        }
     }
 }
 

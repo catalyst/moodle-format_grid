@@ -243,12 +243,11 @@ if ($ADMIN->fulltree) {
         $default
     ));
 
-    // Add link to course home
     $default = 1;
     $page->add(new admin_setting_configcheckbox(
-        'format_grid/showcoursehomelink',
-        get_string('showcoursehomelink', 'format_grid'),
-        get_string('showcoursehomelink_desc', 'format_grid'),
+        'format_grid/section0courselink',
+        get_string('section0courselink', 'format_grid'),
+        get_string('section0courselink_desc', 'format_grid'),
         $default
     ));
 }
