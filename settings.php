@@ -242,14 +242,5 @@ if ($ADMIN->fulltree) {
         new lang_string('courseindex_help', 'format_grid'),
         $default
     ));
-
-    // Add link to course home
-    $default = 1;
-    $page->add(new admin_setting_configcheckbox(
-        'format_grid/showcoursehomelink',
-        get_string('showcoursehomelink', 'format_grid'),
-        get_string('showcoursehomelink_desc', 'format_grid'),
-        $default
-    ));
 }
 $ADMIN->add('format_grid', $page);

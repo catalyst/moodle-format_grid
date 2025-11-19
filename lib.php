@@ -1113,25 +1113,6 @@ class format_grid extends core_courseformat\base {
     public function get_required_jsfiles(): array {
         return [];
     }
-
-    /**
-    * Loads format-specific JavaScript for the course page.
-    *
-    * @param moodle_page $page The page object
-    */
-    public function page_set_course(moodle_page $page) {
-        global $PAGE;
-
-        $showlink = get_config('format_grid', 'showcoursehomelink');
-
-        if ($showlink) {
-            $PAGE->requires->js_call_amd(
-                'format_grid/local/content/courseindex',
-                'init',
-                [$this->courseid, true]
-            );
-        }
-    }
 }
 
 // Transposed from block_html_pluginfile.
